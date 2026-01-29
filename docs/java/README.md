@@ -258,9 +258,9 @@ mvn exec:java -Dexec.mainClass="com.example.Main"
     
     <!-- MySQL -->
     <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>8.0.33</version>
+        <groupId>com.mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+        <version>8.2.0</version>
     </dependency>
     
     <!-- Lombok -->
@@ -290,7 +290,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web:3.1.5'
     
     // MySQL
-    implementation 'mysql:mysql-connector-java:8.0.33'
+    implementation 'com.mysql:mysql-connector-j:8.2.0'
     
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.30'

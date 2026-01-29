@@ -353,7 +353,7 @@ deps:
 	go mod tidy
 
 install:
-	go install cmd/myapp/main.go
+	go install ./cmd/myapp
 ```
 
 ## 常用框架
