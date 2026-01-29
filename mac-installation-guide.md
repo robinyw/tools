@@ -136,8 +136,7 @@ brew install pyenv
 
 ```bash
 export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 ```
 
@@ -145,8 +144,7 @@ eval "$(pyenv init -)"
 
 ```bash
 export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 ```
 
@@ -240,10 +238,18 @@ brew install openjdk
 
 #### 设置环境变量
 
-创建符号链接以便系统能找到 Java：
+创建符号链接以便系统能找到 Java（根据您的 Mac 芯片类型选择）：
+
+**对于 Apple Silicon (M1/M2/M3) Mac：**
 
 ```bash
 sudo ln -sfn /opt/homebrew/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
+```
+
+**对于 Intel Mac：**
+
+```bash
+sudo ln -sfn /usr/local/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
 ```
 
 将以下内容添加到您的 shell 配置文件（`~/.zshrc` 或 `~/.bash_profile`）：
@@ -273,12 +279,24 @@ brew install openjdk@17
 
 为特定版本创建符号链接：
 
+**对于 Apple Silicon (M1/M2/M3) Mac：**
+
 ```bash
-# 对于 Java 11
+# Java 11
 sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
 
-# 对于 Java 17
+# Java 17
 sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+```
+
+**对于 Intel Mac：**
+
+```bash
+# Java 11
+sudo ln -sfn /usr/local/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
+
+# Java 17
+sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
 ```
 
 ### 方法 2: 使用 jenv 管理 Java 版本 (可选)
@@ -320,12 +338,14 @@ jenv add /Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home
 # 列出可用版本
 jenv versions
 
-# 设置全局版本
-jenv global 17
+# 设置全局版本（使用 jenv versions 中显示的完整版本号）
+jenv global 17.0.2
 
 # 为当前目录设置版本
-jenv local 11
+jenv local 11.0.18
 ```
+
+**注意**：使用 `jenv global` 或 `jenv local` 时，请使用 `jenv versions` 命令输出中显示的完整版本号。
 
 ### 方法 3: 下载 Oracle JDK (替代方案)
 
