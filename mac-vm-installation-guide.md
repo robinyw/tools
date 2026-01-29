@@ -5,7 +5,7 @@
 ## 目录
 - [虚拟机方案概览](#虚拟机方案概览)
 - [主流方案推荐](#主流方案推荐)
-- [Parallels Desktop 安装指南（Intel Mac）](#parallels-desktop-安装指南intel-mac)
+- [Parallels Desktop 安装指南](#parallels-desktop-安装指南)
 - [UTM 安装指南（Apple Silicon）](#utm-安装指南apple-silicon)
 - [常见问题](#常见问题)
 
@@ -102,9 +102,9 @@
 
 ---
 
-## Parallels Desktop 安装指南（Intel Mac）
+## Parallels Desktop 安装指南
 
-Parallels Desktop 是 Mac 上最流行的商业虚拟机软件，提供出色的性能和用户体验。
+Parallels Desktop 是 Mac 上最流行的商业虚拟机软件，提供出色的性能和用户体验。同时支持 Intel 和 Apple Silicon Mac。
 
 ### 系统要求
 
@@ -116,26 +116,17 @@ Parallels Desktop 是 Mac 上最流行的商业虚拟机软件，提供出色的
 
 ### 安装步骤
 
-#### 1. 下载 Parallels Desktop
+#### 1. 下载并安装 Parallels Desktop
 
-访问 [Parallels Desktop 官网](https://www.parallels.com/products/desktop/)：
-
-```bash
-# 或使用 Homebrew 下载（推荐）
-brew install --cask parallels
-```
-
-如果不使用 Homebrew，可以直接从官网下载 .dmg 文件。
-
-#### 2. 安装 Parallels Desktop
-
-使用 Homebrew 安装：
+**方法 1: 使用 Homebrew 安装（推荐）**
 
 ```bash
 brew install --cask parallels
 ```
 
-或手动安装：
+**方法 2: 手动安装**
+
+访问 [Parallels Desktop 官网](https://www.parallels.com/products/desktop/) 下载 .dmg 文件，然后：
 
 1. 打开下载的 `.dmg` 文件
 2. 双击 `Install Parallels Desktop` 图标
@@ -143,7 +134,7 @@ brew install --cask parallels
 4. 可能需要输入 macOS 管理员密码
 5. 安装完成后，启动 Parallels Desktop
 
-#### 3. 激活许可证
+#### 2. 激活许可证
 
 1. 启动 Parallels Desktop
 2. 您可以选择：
@@ -151,7 +142,7 @@ brew install --cask parallels
    - 输入已购买的许可证密钥
    - 开始 14 天免费试用
 
-#### 4. 创建虚拟机
+#### 3. 创建虚拟机
 
 ##### 安装 Windows 11
 
@@ -185,7 +176,7 @@ brew install --cask parallels
 
 3. 完成 Ubuntu 安装向导
 
-#### 5. 安装 Parallels Tools
+#### 4. 安装 Parallels Tools
 
 安装完操作系统后，安装 Parallels Tools 以获得更好的性能和功能：
 
@@ -348,6 +339,8 @@ Apple Silicon Mac 上可以运行 ARM64 版本的 Windows 11。
 2. 运行安装程序
 3. 重启虚拟机
 
+> **注意**: 对于 ARM64 Windows，标准的 SPICE Guest Tools 应该能够工作。如果遇到问题，可以尝试使用 [virtio-win 驱动](https://github.com/virtio-win/virtio-win-pkg-scripts)。
+
 #### 运行 x86 Linux/Windows（模拟模式）
 
 如果您需要运行 x86/x64 架构的操作系统：
@@ -375,7 +368,8 @@ sudo apt install davfs2
 # 创建挂载点
 sudo mkdir /mnt/share
 
-# 挂载共享文件夹
+# 挂载共享文件夹（端口 9843 是 UTM 默认的 SPICE WebDAV 端口）
+# 如果无法连接，请检查 UTM 网络设置中的端口配置
 sudo mount -t davfs http://127.0.0.1:9843 /mnt/share
 ```
 
@@ -409,7 +403,7 @@ sudo mount -t davfs http://127.0.0.1:9843 /mnt/share
 
 ### 1. Apple Silicon Mac 可以运行 Windows 10 吗？
 
-**答**: 不能运行 x86/x64 版本的 Windows 10。但可以运行 ARM64 版本的 Windows 11（通过 Parallels Desktop 或 UTM）。如果需要运行 Windows 10，只能通过慢速的模拟模式。
+**答**: 不能运行 x86/x64 版本的 Windows 10。对于 Apple Silicon Mac，推荐使用 ARM64 版本的 Windows 11（通过 Parallels Desktop 或 UTM）。虽然 Windows 10 ARM64 版本存在，但不推荐使用，因为它主要面向 OEM 厂商，不易获取且兼容性不如 Windows 11。如果必须运行 x86/x64 版本的 Windows 10，只能通过性能较低的模拟模式。
 
 ### 2. 虚拟机性能如何？
 
