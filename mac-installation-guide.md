@@ -207,7 +207,9 @@ eval "$(ssh-agent -s)"
 nano ~/.ssh/config
 ```
 
-添加以下内容：
+添加以下内容（根据您生成的密钥类型调整 IdentityFile）：
+
+对于 Ed25519 密钥：
 
 ```
 Host *
@@ -216,7 +218,24 @@ Host *
   IdentityFile ~/.ssh/id_ed25519
 ```
 
+对于 RSA 密钥：
+
+```
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_rsa
+```
+
 添加私钥到 ssh-agent：
+
+对于 macOS 12 及更高版本：
+
+```bash
+ssh-add ~/.ssh/id_ed25519
+```
+
+对于 macOS 11 及更早版本：
 
 ```bash
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
@@ -273,7 +292,7 @@ git config --global alias.st status
 git config --global alias.co checkout
 git config --global alias.br branch
 git config --global alias.ci commit
-git config --global alias.unstage 'reset HEAD --'
+git config --global alias.unstage 'restore --staged'
 git config --global alias.last 'log -1 HEAD'
 git config --global alias.lg 'log --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit'
 ```
