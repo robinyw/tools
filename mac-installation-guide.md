@@ -398,7 +398,7 @@ pyenv --version
 java -version
 echo $JAVA_HOME
 
-# jenv (如果已安装)
+# jenv (如果安装了 jenv)
 jenv versions
 
 # Maven
@@ -527,17 +527,20 @@ brew install jenv
 # jenv 配置
 export PATH="$HOME/.jenv/bin:$PATH"
 eval "$(jenv init -)"
-
-# 启用 jenv 插件
-jenv enable-plugin export
-jenv enable-plugin maven
-jenv enable-plugin gradle
 ```
 
 重新加载配置文件：
 
 ```bash
 source ~/.zshrc  # 如果使用 zsh
+```
+
+启用 jenv 插件（这些是一次性命令，在终端中运行）：
+
+```bash
+jenv enable-plugin export
+jenv enable-plugin maven
+jenv enable-plugin gradle
 ```
 
 #### 3. 安装多个 Zulu JDK 版本
@@ -585,16 +588,18 @@ jenv add /Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home
 jenv versions
 ```
 
-设置全局默认版本：
+设置全局默认版本（使用完整版本号）：
 
 ```bash
-jenv global 17.0
+# 使用 jenv versions 中显示的完整版本号
+jenv global 17.0.9
 ```
 
 为当前项目目录设置版本：
 
 ```bash
 cd /path/to/your/project
+# 可以使用短版本号如 11.0，jenv 会匹配最新的 11.0.x 版本
 jenv local 11.0
 ```
 
@@ -725,6 +730,7 @@ nano ~/.m2/settings.xml
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- 此配置适用于 Maven 3.x 及更高版本 -->
 <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 
@@ -965,6 +971,7 @@ nano ~/.gradle/init.gradle
 allprojects {
     repositories {
         // 移除所有已配置的仓库
+        // 注意：这将影响所有项目，如果您有使用自定义或私有仓库的项目，需要相应调整
         all { ArtifactRepository repo ->
             if (repo instanceof MavenArtifactRepository) {
                 def url = repo.url.toString()
@@ -1059,17 +1066,11 @@ repositories {
 ```properties
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
-# 使用阿里云镜像下载 Gradle 发行版
+# 使用腾讯云镜像下载 Gradle 发行版
+# 将下面的版本号替换为您需要的 Gradle 版本（如 8.5, 8.6 等）
 distributionUrl=https\://mirrors.cloud.tencent.com/gradle/gradle-8.5-bin.zip
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
-```
-
-或者创建 `~/.gradle/gradle-wrapper.properties` 全局配置：
-
-```properties
-# 全局 Gradle Wrapper 镜像配置
-distributionUrlTemplate=https\://mirrors.cloud.tencent.com/gradle/gradle-VERSION-TYPE.zip
 ```
 
 ### 6. 验证配置
@@ -1094,7 +1095,7 @@ gradle build
 | `gradle assemble` | 组装项目输出（不运行测试）|
 | `gradle dependencies` | 显示依赖树 |
 | `gradle --refresh-dependencies` | 强制刷新依赖 |
-| `gradle wrapper --gradle-version 8.5` | 更新 Gradle Wrapper 版本 |
+| `gradle wrapper --gradle-version X.X` | 更新 Gradle Wrapper 版本（将 X.X 替换为具体版本号）|
 | `./gradlew build` | 使用 Wrapper 构建项目 |
 
 ### Mac M 芯片注意事项
@@ -1121,7 +1122,9 @@ gradle build
 
 ```properties
 # 在 ~/.gradle/gradle.properties 中添加
+# 将 YOUR_USERNAME 替换为您的用户名
 sdk.dir=/Users/YOUR_USERNAME/Library/Android/sdk
+# 将 VERSION 替换为您安装的 NDK 版本号，例如 25.2.9519653
 ndk.dir=/Users/YOUR_USERNAME/Library/Android/sdk/ndk/VERSION
 ```
 
@@ -1130,6 +1133,7 @@ ndk.dir=/Users/YOUR_USERNAME/Library/Android/sdk/ndk/VERSION
 ```bash
 # 添加到 ~/.zshrc
 export ANDROID_HOME=$HOME/Library/Android/sdk
+# 将 VERSION 替换为您安装的 NDK 版本号
 export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/VERSION
 export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 ```
