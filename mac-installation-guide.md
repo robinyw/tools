@@ -588,18 +588,21 @@ jenv add /Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home
 jenv versions
 ```
 
-设置全局默认版本（使用完整版本号）：
+设置全局默认版本：
 
 ```bash
-# 使用 jenv versions 中显示的完整版本号
+# 推荐使用完整版本号确保精确匹配
 jenv global 17.0.9
+
+# 也可以使用短版本号，jenv 会匹配最新的对应版本
+jenv global 17.0
 ```
 
 为当前项目目录设置版本：
 
 ```bash
 cd /path/to/your/project
-# 可以使用短版本号如 11.0，jenv 会匹配最新的 11.0.x 版本
+# 可以使用短版本号，jenv 会匹配最新的 11.0.x 版本
 jenv local 11.0
 ```
 
@@ -970,8 +973,9 @@ nano ~/.gradle/init.gradle
 ```groovy
 allprojects {
     repositories {
-        // 移除所有已配置的仓库
-        // 注意：这将影响所有项目，如果您有使用自定义或私有仓库的项目，需要相应调整
+        // 移除标准的公共仓库，替换为镜像
+        // 注意：只移除 Maven Central、Apache Maven 和 JCenter 这些标准公共仓库
+        // 您的项目中的自定义或私有仓库不会被影响
         all { ArtifactRepository repo ->
             if (repo instanceof MavenArtifactRepository) {
                 def url = repo.url.toString()
@@ -1067,8 +1071,8 @@ repositories {
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
 # 使用腾讯云镜像下载 Gradle 发行版
-# 将下面的版本号替换为您需要的 Gradle 版本（如 8.5, 8.6 等）
-distributionUrl=https\://mirrors.cloud.tencent.com/gradle/gradle-8.5-bin.zip
+# 将下面的 X.X 替换为您需要的 Gradle 版本（例如 8.5, 8.6, 8.10 等）
+distributionUrl=https\://mirrors.cloud.tencent.com/gradle/gradle-X.X-bin.zip
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
 ```
@@ -1095,7 +1099,7 @@ gradle build
 | `gradle assemble` | 组装项目输出（不运行测试）|
 | `gradle dependencies` | 显示依赖树 |
 | `gradle --refresh-dependencies` | 强制刷新依赖 |
-| `gradle wrapper --gradle-version X.X` | 更新 Gradle Wrapper 版本（将 X.X 替换为具体版本号）|
+| `gradle wrapper --gradle-version X.X` | 更新 Gradle Wrapper 版本（例如：8.5）|
 | `./gradlew build` | 使用 Wrapper 构建项目 |
 
 ### Mac M 芯片注意事项
