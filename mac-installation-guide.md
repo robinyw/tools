@@ -1,6 +1,6 @@
 # Mac 开发环境安装指南
 
-本文档提供在 macOS 上安装 npm、Python 和 Java 的详细指南。对于 npm 和 Python，我们将安装版本管理工具，以便轻松切换不同版本。
+本文档提供在 macOS 上安装开发工具的详细指南，包括 npm、Python、Java、Maven 和 Gradle。对于 npm、Python 和 Java，我们将安装版本管理工具，以便轻松切换不同版本。特别针对 Mac M 芯片（Apple Silicon）提供了优化的配置方案。
 
 ## 目录
 - [安装 Homebrew](#安装-homebrew)
