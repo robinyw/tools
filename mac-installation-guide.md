@@ -1,9 +1,10 @@
 # Mac 开发环境安装指南
 
-本文档提供在 macOS 上安装 npm、Python 和 Java 的详细指南。对于 npm 和 Python，我们将安装版本管理工具，以便轻松切换不同版本。
+本文档提供在 macOS 上安装 Git、npm、Python 和 Java 的详细指南。对于 npm 和 Python，我们将安装版本管理工具，以便轻松切换不同版本。
 
 ## 目录
 - [安装 Homebrew](#安装-homebrew)
+- [安装 Git](#安装-git)
 - [安装 npm (使用 nvm)](#安装-npm-使用-nvm)
 - [安装 Python (使用 pyenv)](#安装-python-使用-pyenv)
 - [安装 Java](#安装-java)
@@ -26,6 +27,397 @@ Homebrew 是 macOS 的包管理器，我们将使用它来安装大部分工具�
 ```bash
 brew --version
 ```
+
+---
+
+## 安装 Git
+
+Git 是一个分布式版本控制系统，是现代软件开发的必备工具。macOS 提供了多种安装 Git 的方法。
+
+### 方法 1: 使用 Xcode Command Line Tools 安装 (推荐)
+
+这是最简单的方法，macOS 会自动安装 Apple 提供的 Git 版本。
+
+#### 1. 检查是否已安装 Git
+
+```bash
+git --version
+```
+
+如果未安装，系统会自动提示安装 Command Line Tools。
+
+#### 2. 手动安装 Command Line Tools
+
+如果没有自动提示，可以手动安装：
+
+```bash
+xcode-select --install
+```
+
+这将打开一个对话框，点击"安装"按钮即可。
+
+#### 3. 验证安装
+
+```bash
+git --version
+```
+
+输出示例：
+```
+git version 2.39.2 (Apple Git-143)
+```
+
+### 方法 2: 使用 Homebrew 安装 (推荐获取最新版本)
+
+使用 Homebrew 可以获得最新版本的 Git，并且更容易升级。
+
+#### 1. 安装 Git
+
+```bash
+brew install git
+```
+
+#### 2. 验证安装
+
+```bash
+git --version
+```
+
+输出示例：
+```
+git version 2.43.0
+```
+
+#### 3. 升级 Git
+
+```bash
+brew upgrade git
+```
+
+### 方法 3: 下载官方安装包
+
+1. 访问 [Git 官方网站](https://git-scm.com/download/mac)
+2. 下载适用于 macOS 的安装包
+3. 运行安装程序并按照提示操作
+
+### 初始配置 Git
+
+安装 Git 后，需要配置您的用户信息。这些信息会用于每次提交。
+
+#### 1. 配置用户名和邮箱
+
+```bash
+git config --global user.name "您的名字"
+git config --global user.email "your.email@example.com"
+```
+
+#### 2. 配置默认分支名称
+
+将默认分支名称设置为 `main`：
+
+```bash
+git config --global init.defaultBranch main
+```
+
+#### 3. 配置编辑器
+
+设置默认文本编辑器（例如使用 vim）：
+
+```bash
+git config --global core.editor vim
+```
+
+或使用 nano：
+
+```bash
+git config --global core.editor nano
+```
+
+或使用 VS Code（如果已安装）：
+
+```bash
+git config --global core.editor "code --wait"
+```
+
+#### 4. 启用颜色输出
+
+```bash
+git config --global color.ui auto
+```
+
+#### 5. 配置换行符处理
+
+对于 macOS/Linux 用户：
+
+```bash
+git config --global core.autocrlf input
+```
+
+#### 6. 查看所有配置
+
+```bash
+git config --list
+```
+
+或查看全局配置文件：
+
+```bash
+cat ~/.gitconfig
+```
+
+### 配置 SSH 密钥（用于 GitHub/GitLab）
+
+#### 1. 检查现有 SSH 密钥
+
+```bash
+ls -al ~/.ssh
+```
+
+查看是否存在 `id_rsa.pub` 或 `id_ed25519.pub` 文件。
+
+#### 2. 生成新的 SSH 密钥
+
+如果没有 SSH 密钥，生成一个新的：
+
+使用 Ed25519 算法（推荐）：
+
+```bash
+ssh-keygen -t ed25519 -C "your.email@example.com"
+```
+
+或使用 RSA 算法：
+
+```bash
+ssh-keygen -t rsa -b 4096 -C "your.email@example.com"
+```
+
+按 Enter 使用默认文件位置，然后设置密码（可选）。
+
+#### 3. 添加 SSH 密钥到 ssh-agent
+
+启动 ssh-agent：
+
+```bash
+eval "$(ssh-agent -s)"
+```
+
+配置 SSH 以自动加载密钥（编辑 `~/.ssh/config`）：
+
+```bash
+nano ~/.ssh/config
+```
+
+添加以下内容（根据您生成的密钥类型调整 IdentityFile）：
+
+对于 Ed25519 密钥：
+
+```
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+```
+
+对于 RSA 密钥：
+
+```
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_rsa
+```
+
+添加私钥到 ssh-agent：
+
+对于 macOS 12 及更高版本：
+
+```bash
+ssh-add ~/.ssh/id_ed25519
+```
+
+对于 macOS 11 及更早版本：
+
+```bash
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+```
+
+#### 4. 复制公钥
+
+```bash
+pbcopy < ~/.ssh/id_ed25519.pub
+```
+
+然后将公钥添加到您的 GitHub、GitLab 或其他 Git 托管平台的账户设置中。
+
+#### 5. 测试 SSH 连接
+
+测试 GitHub 连接：
+
+```bash
+ssh -T git@github.com
+```
+
+测试 GitLab 连接：
+
+```bash
+ssh -T git@gitlab.com
+```
+
+成功的输出示例：
+```
+Hi username! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+### 配置 Git 凭证助手
+
+为了避免每次推送时都输入密码，可以配置凭证助手。
+
+#### macOS Keychain 凭证助手
+
+macOS 自带 keychain 凭证助手：
+
+```bash
+git config --global credential.helper osxkeychain
+```
+
+这将把您的 Git 凭证（用户名和密码）保存在 macOS 钥匙串中。
+
+### 常用 Git 别名配置（可选）
+
+为常用命令设置别名以提高效率：
+
+```bash
+# 常用别名
+git config --global alias.st status
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.ci commit
+git config --global alias.unstage 'restore --staged'
+git config --global alias.last 'log -1 HEAD'
+git config --global alias.lg 'log --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit'
+```
+
+使用示例：
+```bash
+git st          # 等同于 git status
+git co main     # 等同于 git checkout main
+git ci -m "msg" # 等同于 git commit -m "msg"
+git lg          # 美化的 log 输出
+```
+
+### 全局 .gitignore 配置（可选）
+
+创建全局 `.gitignore` 文件以忽略常见的系统文件：
+
+#### 1. 创建全局 .gitignore 文件
+
+```bash
+nano ~/.gitignore_global
+```
+
+#### 2. 添加常见的 macOS 和编辑器文件
+
+```
+# macOS 系统文件
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS 缩略图
+._*
+
+# macOS 文件夹属性
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# 编辑器
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node
+node_modules/
+npm-debug.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+venv/
+.env
+```
+
+#### 3. 配置 Git 使用全局 .gitignore
+
+```bash
+git config --global core.excludesfile ~/.gitignore_global
+```
+
+### 验证 Git 配置
+
+运行以下命令验证 Git 配置：
+
+```bash
+# 查看 Git 版本
+git --version
+
+# 查看用户配置
+git config user.name
+git config user.email
+
+# 查看所有全局配置
+git config --global --list
+```
+
+### 常用 Git 命令
+
+| 命令 | 说明 |
+|------|------|
+| `git init` | 初始化一个新的 Git 仓库 |
+| `git clone <url>` | 克隆远程仓库 |
+| `git status` | 查看工作区状态 |
+| `git add <file>` | 添加文件到暂存区 |
+| `git add .` | 添加所有更改到暂存区 |
+| `git commit -m "message"` | 提交更改 |
+| `git push` | 推送到远程仓库 |
+| `git pull` | 拉取并合并远程更改 |
+| `git branch` | 列出分支 |
+| `git checkout -b <branch>` | 创建并切换到新分支 |
+| `git merge <branch>` | 合并分支 |
+| `git log` | 查看提交历史 |
+| `git diff` | 查看更改 |
+
+### Git GUI 工具推荐（可选）
+
+如果您喜欢图形界面，可以使用以下 Git GUI 工具：
+
+1. **GitHub Desktop** - GitHub 官方客户端
+   ```bash
+   brew install --cask github
+   ```
+
+2. **Sourcetree** - 功能强大的 Git GUI
+   ```bash
+   brew install --cask sourcetree
+   ```
+
+3. **GitKraken** - 现代化的 Git 客户端
+   ```bash
+   brew install --cask gitkraken
+   ```
+
+4. **Tower** - 专业的 macOS Git 客户端
+   ```bash
+   brew install --cask tower
+   ```
 
 ---
 
@@ -1161,6 +1553,11 @@ gradle dependencies
 运行以下命令以验证所有工具都已正确安装：
 
 ```bash
+# Git
+git --version
+git config user.name
+git config user.email
+
 # Node.js 和 npm
 node --version
 npm --version
@@ -1207,6 +1604,7 @@ gradle -version
 ## 总结
 
 现在您已经在 macOS (特别是 Mac M 芯片) 上成功安装了：
+- **Git**（版本控制系统）
 - **npm** 和 **nvm**（Node.js 版本管理器）
 - **Python** 和 **pyenv**（Python 版本管理器）
 - **Java**（可选使用 jenv 进行版本管理）
