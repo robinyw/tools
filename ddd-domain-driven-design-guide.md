@@ -296,23 +296,33 @@ public class Money {
     private BigDecimal amount;
     private Currency currency;
     
+    // 值对象是不可变的，所有字段都是 final
     public Money(BigDecimal amount, Currency currency) {
+        if (amount == null) {
+            throw new IllegalArgumentException("金额不能为 null");
+        }
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("金额不能为负数");
+        }
+        if (currency == null) {
+            throw new IllegalArgumentException("币种不能为 null");
         }
         this.amount = amount;
         this.currency = currency;
     }
     
     public Money add(Money other) {
+        if (other == null) {
+            throw new IllegalArgumentException("参数不能为 null");
+        }
         if (!this.currency.equals(other.currency)) {
             throw new IllegalArgumentException("不能对不同币种的金额进行运算");
         }
         return new Money(this.amount.add(other.amount), this.currency);
     }
     
-    // 值对象是不可变的
-    // 没有 setter 方法
+    // 值对象是不可变的，没有 setter 方法
+    // 确保所有字段都是 private 且只在构造函数中赋值
 }
 ```
 
