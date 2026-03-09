@@ -1,0 +1,99 @@
+version: '3.8'
+
+# =============================================
+# ECS-2 (172.16.0.21)
+# es-node3: Master + Data 节点
+# kibana:   可视化管理
+# =============================================
+
+services:
+
+  # --------------------------------------------
+  # ES Node-3: Master + Data 节点
+  # --------------------------------------------
+  es-node3:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    container_name: es-node3
+    environment:
+      - node.name=es-node3
+      - cluster.name=es-cluster
+      - node.roles=master,data,ingest
+      - network.host=0.0.0.0
+      - network.publish_host=172.16.0.21
+      - http.port=9200
+      - transport.port=9300
+      - discovery.seed_hosts=172.16.0.20:9300,172.16.0.20:9301,172.16.0.21:9300
+      - cluster.initial_master_nodes=es-node1,es-node3
+      - ES_JAVA_OPTS=-Xms6g -Xmx6g
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca/ca.crt
+      - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certs/es-node3/es-node3.crt
+      - xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certs/es-node3/es-node3.key
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca/ca.crt
+      - xpack.security.http.ssl.certificate=/usr/share/elasticsearch/config/certs/es-node3/es-node3.crt
+      - xpack.security.http.ssl.key=/usr/share/elasticsearch/config/certs/es-node3/es-node3.key
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - /data/elasticsearch/node3/data:/usr/share/elasticsearch/data
+      - /data/elasticsearch/node3/logs:/usr/share/elasticsearch/logs
+      - /data/elasticsearch/certs:/usr/share/elasticsearch/config/certs:ro
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - es-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt https://localhost:9200/_cluster/health | grep -qE 'green|yellow'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # --------------------------------------------
+  # Kibana
+  # --------------------------------------------
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.17.0
+    container_name: kibana
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=["https://172.16.0.20:9200","https://172.16.0.20:9201","https://172.16.0.21:9200"]
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/usr/share/kibana/config/certs/ca/ca.crt
+      - SERVER_SSL_ENABLED=true
+      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana/kibana.crt
+      - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana/kibana.key
+      - NODE_OPTIONS=--max-old-space-size=2048
+    volumes:
+      - /data/elasticsearch/kibana/data:/usr/share/kibana/data
+      - /data/elasticsearch/certs:/usr/share/kibana/config/certs:ro
+    ports:
+      - "5601:5601"
+    networks:
+      - es-network
+    depends_on:
+      es-node3:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s --cacert /usr/share/kibana/config/certs/ca/ca.crt https://localhost:5601/api/status | grep -q 'available'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+networks:
+  es-network:
+    driver: bridge
