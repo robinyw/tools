@@ -16,15 +16,27 @@ instances:
   - name: es-node1
     ip:
       - 172.16.0.20
+      - 127.0.0.1
+    dns:
+      - localhost
   - name: es-node2
     ip:
       - 172.16.0.20
+      - 127.0.0.1
+    dns:
+      - localhost
   - name: es-node3
     ip:
       - 172.16.0.21
+      - 127.0.0.1
+    dns:
+      - localhost
   - name: kibana
     ip:
       - 172.16.0.21
+      - 127.0.0.1
+    dns:
+      - localhost
 EOF
 
 echo "🔐 生成 CA 证书..."
