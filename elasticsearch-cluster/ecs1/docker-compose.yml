@@ -26,6 +26,7 @@ services:
       - cluster.initial_master_nodes=es-node1,es-node3
       - ES_JAVA_OPTS=-Xms2g -Xmx2g
       - bootstrap.memory_lock=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - xpack.security.enabled=true
       - xpack.security.transport.ssl.enabled=true
       - xpack.security.transport.ssl.verification_mode=certificate
@@ -54,10 +55,10 @@ services:
       - es-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -s --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt https://localhost:9200/_cluster/health | grep -qE 'green|yellow'"]
+      test: ["CMD-SHELL", "curl -s -u elastic:${ELASTIC_PASSWORD} --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt https://localhost:9200/_cluster/health | grep -qE 'green|yellow'"]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 10
       start_period: 60s
 
   # --------------------------------------------
@@ -78,6 +79,7 @@ services:
       - cluster.initial_master_nodes=es-node1,es-node3
       - ES_JAVA_OPTS=-Xms5g -Xmx5g
       - bootstrap.memory_lock=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - xpack.security.enabled=true
       - xpack.security.transport.ssl.enabled=true
       - xpack.security.transport.ssl.verification_mode=certificate
@@ -106,10 +108,10 @@ services:
       - es-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -s --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt https://localhost:9201/_cluster/health | grep -qE 'green|yellow'"]
+      test: ["CMD-SHELL", "curl -s -u elastic:${ELASTIC_PASSWORD} --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt https://localhost:9201/_cluster/health | grep -qE 'green|yellow'"]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 10
       start_period: 60s
 
 networks:
