@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+
+  zookeeper:
+    image: zookeeper:3.8.4
+    container_name: zookeeper
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=spark-master:2888:3888 server.2=spark-worker1:2888:3888 server.3=hadoop-node3:2888:3888
+      ZOO_4LW_COMMANDS_WHITELIST: "*"
+    volumes:
+      - /opt/bigdata/data/zookeeper:/data
+      - /opt/bigdata/logs/zookeeper:/logs
+    healthcheck:
+      test: ["CMD", "zkServer.sh", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  journalnode:
+    image: apache/hadoop:3.3.6
+    container_name: journalnode
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /opt/bigdata/config/hadoop:/opt/hadoop/etc/hadoop
+      - /opt/bigdata/data/journalnode:/opt/hadoop/data/journalnode
+      - /opt/bigdata/logs/hadoop:/opt/hadoop/logs
+    command: hdfs journalnode
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+
+  namenode:
+    image: apache/hadoop:3.3.6
+    container_name: namenode
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /opt/bigdata/config/hadoop:/opt/hadoop/etc/hadoop
+      - /opt/bigdata/data/namenode:/opt/hadoop/data/namenode
+      - /opt/bigdata/logs/hadoop:/opt/hadoop/logs
+    command: hdfs namenode
+    depends_on:
+      - journalnode
+    healthcheck:
+      test: ["CMD", "hdfs", "dfsadmin", "-report"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  zkfc:
+    image: apache/hadoop:3.3.6
+    container_name: zkfc
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /opt/bigdata/config/hadoop:/opt/hadoop/etc/hadoop
+      - /opt/bigdata/logs/hadoop:/opt/hadoop/logs
+    command: hdfs zkfc
+    depends_on:
+      - namenode
+
+  resourcemanager:
+    image: apache/hadoop:3.3.6
+    container_name: resourcemanager
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      YARN_RESOURCEMANAGER_OPTS: "-Xmx4g"
+    volumes:
+      - /opt/bigdata/config/hadoop:/opt/hadoop/etc/hadoop
+      - /opt/bigdata/logs/hadoop:/opt/hadoop/logs
+    command: yarn resourcemanager
+    depends_on:
+      - namenode
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://spark-master:8088/ws/v1/cluster/info"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  historyserver:
+    image: apache/spark:3.5.1
+    container_name: spark-historyserver
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /opt/bigdata/config/hadoop:/opt/hadoop/etc/hadoop
+      - /opt/bigdata/config/spark:/opt/spark/conf
+      - /opt/bigdata/logs/spark:/opt/spark/logs
+    command: /opt/spark/sbin/start-history-server.sh
+    depends_on:
+      - namenode
