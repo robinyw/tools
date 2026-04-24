@@ -1,15 +1,15 @@
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV HADOOP_VERSION=3.3.6
-ENV SPARK_VERSION=3.5.1
+ENV SPARK_VERSION=4.0.0
 ENV HADOOP_HOME=/opt/hadoop
 ENV SPARK_HOME=/opt/spark
 ENV PATH=$PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$SPARK_HOME/bin:$SPARK_HOME/sbin
 
 RUN apt update && apt install -y \
-    openjdk-11-jdk \
+    openjdk-17-jdk \
     wget curl vim \
     openssh-server openssh-client \
     net-tools \

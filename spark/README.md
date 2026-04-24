@@ -14,6 +14,7 @@
 10. [扩容 Worker 节点](#扩容-worker-节点)
 11. [常见问题排查（FAQ）](#常见问题排查faq)
 12. [生产运维建议](#生产运维建议)
+13. [Spark 4 新特性说明](#spark-4-新特性说明)
 
 ---
 
@@ -76,9 +77,9 @@ YARN HA:
 | Ubuntu | 22.04 LTS | 宿主机操作系统 |
 | Docker | 24.0+ | 容器运行时 |
 | Docker Compose | 2.20+ | 容器编排工具 |
-| JDK | OpenJDK 11 | Java 运行环境 |
+| JDK | OpenJDK 17 | Java 运行环境 |
 | Hadoop | 3.3.6 | HDFS + YARN |
-| Spark | 3.5.1 | 计算引擎 |
+| Spark | 4.0.0 | 计算引擎 |
 | ZooKeeper | 3.8.4 | 分布式协调服务 |
 
 ---
@@ -450,12 +451,12 @@ curl -s http://spark-master:18080 | grep -i "spark history"
 docker run --rm --network host \
   -v /opt/bigdata/config/hadoop:/opt/hadoop/etc/hadoop \
   -v /opt/bigdata/config/spark:/opt/spark/conf \
-  apache/spark:3.5.1 \
+  apache/spark:4.0.0 \
   spark-submit \
     --class org.apache.spark.examples.SparkPi \
     --master yarn \
     --deploy-mode cluster \
-    /opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar 10
+    /opt/spark/examples/jars/spark-examples_2.13-4.0.0.jar 10
 ```
 
 ---
@@ -734,5 +735,55 @@ docker compose -f docker-compose-master.yml up -d namenode
 
 ---
 
-*文档最后更新：2024 年*  
+## Spark 4 新特性说明
+
+### 概述
+
+Spark 4.0.0 是 Apache Spark 的重大版本升级，带来了多项性能改进和新特性。
+
+### 默认 Scala 版本升级至 2.13
+
+Spark 4.x 将默认 Scala 版本从 2.12 升级为 **2.13**，带来更好的集合性能和更完善的标准库支持。
+
+- 预编译包命名变更：`spark-examples_2.13-4.0.0.jar`（原为 `spark-examples_2.12-3.5.1.jar`）
+- 下载地址：`https://downloads.apache.org/spark/spark-4.0.0/spark-4.0.0-bin-hadoop3.tgz`
+
+### Java 最低版本要求提升至 Java 17
+
+Spark 4.x 不再支持 Java 8 和 Java 11，**最低要求 Java 17**（LTS）。
+
+- 利用 Java 17 的虚拟线程和现代 JVM 特性提升性能
+- 推荐使用 OpenJDK 17，对应路径：`/usr/lib/jvm/java-17-openjdk-amd64`
+
+### Structured Streaming 增强
+
+- **Stateful Processing 优化**：RocksDB 状态后端性能大幅提升，减少 GC 压力
+- **支持 Watermark 多列**：更灵活的时间窗口和延迟数据处理
+- **Streaming Join 优化**：Stream-Stream Join 状态管理更高效
+
+### 性能提升
+
+| 方面 | 改进说明 |
+|------|---------|
+| Shuffle 性能 | Push-based Shuffle 正式 GA，大任务 Shuffle 速度提升 30%+ |
+| 查询优化器 | Adaptive Query Execution (AQE) 进一步增强，自动处理数据倾斜 |
+| 向量化执行 | 更多算子支持向量化，SIMD 加速数值计算 |
+| 内存管理 | 改进的堆外内存管理，减少 OOM 风险 |
+
+### SQL 功能增强
+
+- 支持更多 ANSI SQL 标准语法
+- `LATERAL COLUMN ALIAS` 支持（在 SELECT 中引用同级别列别名）
+- `UNPIVOT` 操作符正式支持
+- 改进的 `COLLATION` 支持，便于多语言字符串比较
+
+### 升级注意事项
+
+1. **Scala 版本变更**：如果有自定义 Spark 应用，需重新用 Scala 2.13 编译打包
+2. **API 变化**：部分已废弃 API 在 4.0.0 中被移除，升级前请查阅[迁移指南](https://spark.apache.org/docs/4.0.0/migration-guide.html)
+3. **Python 版本**：PySpark 4.x 最低要求 Python 3.8+
+
+---
+
+*文档最后更新：2026 年 4 月*  
 *维护者：运维团队*
