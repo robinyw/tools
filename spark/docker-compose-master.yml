@@ -84,7 +84,7 @@ services:
       retries: 5
 
   historyserver:
-    image: apache/spark:3.5.1
+    image: apache/spark:4.0.0
     container_name: spark-historyserver
     network_mode: host
     restart: unless-stopped
